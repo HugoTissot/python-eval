@@ -10,6 +10,8 @@ def coefficients(chaine):
     liste.reverse()
     return (liste)
 
+
+
 def deux_plus_gros (liste_noeud) :
     """Méthode qui renvoit les 2 plus gros scores des noeuds d'un arbre""" #Voir le builder des noeuds
     L = [x.score for x in liste_noeud]
@@ -18,7 +20,11 @@ def deux_plus_gros (liste_noeud) :
     gros2 = max(L)
     return (gros1,gros2)
 
+
+
 class noeud:
+
+
         def __init__(self, chaine, score, noeuds_suivants):
             self.chaine = chaine
 
@@ -28,19 +34,31 @@ class noeud:
             self.noeuds_suivants = noeuds_suivants #Si noeuds_suivants = ["",""] il s'agit d'une feuille
             # Le noeud est composé de sa chaine de caractère et des prochains noeuds qu'il forme le premier élément est le noeud
             # de gauche, le second celui de droite
+
+
         def __repr__(self):
             return(self.chaine) # Aide pour la construction du code
 
 
 class TreeBuilder:
 
+
+
     def __init__(self, chaine):
         self.chaine = chaine
         self.coefficients = coefficients(chaine)
+
+
+
+
     def tree(self) :
         """Méthode pour construire l'arbre"""
+
+
         liste = self.coefficients[:] #On récupère la liste des caractères et de leurs occurences
         tree = [] #Liste des noeuds
+
+
         for x in liste :
             tree.append(noeud(x[0],x[1],["",""])) #On ajoute à l'arbre les feuilles
         while len(liste) > 1 :
@@ -79,6 +97,8 @@ class TreeBuilder:
                 noeuds_racine.append(x)
 
         tree.append(noeud(liste[0][0],score1 + score2,[noeuds_racine[1],noeuds_racine[0]]))
+
+
         self.tree = tree
         return tree
 
@@ -87,20 +107,32 @@ class TreeBuilder:
 
 class Codec :
 
+
     def __init__(self,tree) :
         self.tree = tree
 
 
 
     def encode(self,text) :
+
+
         caracteres = [] #Liste des caractères pouvant composer le message
         codes = [] #Liste de leurs encodage en binaire (le ième élément correspond à l'encodage du ième caractère)
-        for noeud in self.tree :
+
+
+        for noeud in self.tree :  #On parcourt les feuilles pour avoir la liste des caractères possibles du message
             if len(noeud.chaine) == 1 :
                 caracteres.append(noeud.chaine)
+
+
         for x in caracteres :
-            code_caractere = ""
+
+            code_caractere = "" #Code en binaire pour un caractère donné
+
+
             parents = [x] #Liste des noeuds parcourus pour atteindre la racine
+
+
             for noeud in self.tree :
                 if parents[-1] in noeud.noeuds_suivants : #On cherche l'ascendant du dernier noeud parcouru
                     if parents[-1] == noeud.noeuds_suivants[0] : #Cas où le noeud a été généré à gauche de l'ascendant
@@ -108,20 +140,28 @@ class Codec :
                     else :
                         code_caractere =  "1" + code_caractere
                     parents.append(noeud.chaine)
+
             codes.append(code_caractere)
 
+
         message_code = ""
+
+
         clef = [] #Le ième élément de cette liste correspond au nombre de bits successifs codant la ième lettre du message
         # initiale
         #Malheureusement c'est la seule manière que j'ai trouvé pour séquencer correctement la lecture du message binaire, un
         #autre moyen aurait été de mettre un autre caractère que des 0 et 1 pour séparer 2 encodages de caractère (avec cette
         #méthode on aurait pu décoder un message sans l'encoder au préalable) mais l'énoncé semblait imposer un message codé de
         #sortie composé uniquement de 0 et 1
+
+
         for lettre in text : #La variable s'appelle lettre mais il peut s'agir de n'importe quel caractère
             for i in range (len(caracteres)) :
                 if lettre == caracteres[i] : #On cherche le code qui correspond au caractère du texte
                     message_code = message_code + codes[i]
                     clef.append(len(codes[i]))
+
+
 
         self.caracteres = caracteres
         self.codes = codes
@@ -132,12 +172,16 @@ class Codec :
     def decode(self,text_code) :
         message_decode = ""
         compteur = 0 #Compteur pour découper le message binaire en groupes de bits pertinents
+
+
         for x in self.clef :
             bits = text_code[compteur:compteur+x]
             compteur += x
             for i in range (len(self.codes)) :
                 if bits == self.codes[i] :
                     message_decode = message_decode + self.caracteres[i]
+
+
         return message_decode
 
 
